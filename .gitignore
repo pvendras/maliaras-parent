@@ -1,0 +1,14 @@
+__pycache__/
+.env
+.env.*
+!.env.example
+data/
+*.cookies
+
+# Private school exports and local machine/agent settings
+reports/
+.claude/
+.pi/settings.json
+.DS_Store
+.venv/
+*.py[cod]

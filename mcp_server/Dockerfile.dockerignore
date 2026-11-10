@@ -1,0 +1,14 @@
+# Allowlist: do not send reports, credentials, git history or local caches to the builder.
+**
+!client.py
+!lessons.py
+!report_md.py
+!report_pdf.py
+!report_format.py
+!mcp_server/
+!mcp_server/Dockerfile
+!mcp_server/pyproject.toml
+!mcp_server/uv.lock
+!mcp_server/server.py
+!mcp_server/service.py
+!mcp_server/instructions.md

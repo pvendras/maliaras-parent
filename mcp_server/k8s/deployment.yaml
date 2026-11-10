@@ -1,0 +1,94 @@
+# Apply in the same namespace as the proxy, or adjust the NetworkPolicy selector.
+# Create the maliaras-parent Secret out of band; never commit real values.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maliaras-parent-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maliaras-parent-mcp
+  template:
+    metadata:
+      labels:
+        app: maliaras-parent-mcp
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mcp
+          image: maliaras-parent-mcp:0.1.0 # Replace with your registry image/digest.
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: MALIARAS_STUDENTS # key:name per child; add USERNAME/PASSWORD for each key
+              value: anna:Άννα,nikos:Νίκος
+            - name: MALIARAS_ANNA_USERNAME
+              valueFrom:
+                secretKeyRef: {name: maliaras-parent, key: anna-username}
+            - name: MALIARAS_ANNA_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: maliaras-parent, key: anna-password}
+            - name: MALIARAS_NIKOS_USERNAME
+              valueFrom:
+                secretKeyRef: {name: maliaras-parent, key: nikos-username}
+            - name: MALIARAS_NIKOS_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: maliaras-parent, key: nikos-password}
+            - name: MALIARAS_MCP_TOKEN
+              valueFrom:
+                secretKeyRef: {name: maliaras-parent, key: mcp-token}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: '1', memory: 512Mi}
+          readinessProbe:
+            httpGet: {path: /healthz, port: http}
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 32Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maliaras-parent-mcp
+spec:
+  type: ClusterIP
+  selector:
+    app: maliaras-parent-mcp
+  ports:
+    - {name: http, port: 8000, targetPort: http}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: maliaras-parent-mcp
+spec:
+  podSelector:
+    matchLabels:
+      app: maliaras-parent-mcp
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: litelm # Replace with the actual proxy pod labels.
+      ports:
+        - {protocol: TCP, port: 8000}
