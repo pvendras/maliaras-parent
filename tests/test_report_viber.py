@@ -38,5 +38,56 @@ class ViberTests(unittest.TestCase):
         self.assertIn('Δεν βρέθηκαν', render_viber(dict(self.report(), date=None), []))
 
 
+class ClipboardTests(unittest.TestCase):
+    TEXT = '📋 *Αναφορά — Τρίτη 10/11*\n   • Γλώσσα σελ. 48'
+
+    def test_windows_uses_powershell_with_utf8_payload(self):
+        import base64
+        from unittest.mock import patch
+        import report_viber
+        with patch.object(report_viber.sys, 'platform', 'win32'), \
+                patch.object(report_viber.subprocess, 'run') as run, \
+                patch.object(report_viber.os, 'startfile', create=True) as startfile, \
+                patch.dict('os.environ', {'MALIARAS_VIBER_CHAT': 'Γονείς Β2'}):
+            status = report_viber.open_in_viber(self.TEXT)
+        command = run.call_args.args[0]
+        self.assertEqual(command[0], 'powershell')
+        self.assertIn('Set-Clipboard', command[-1])
+        payload = run.call_args.kwargs['env']['MALIARAS_CLIPBOARD_B64']
+        self.assertEqual(base64.b64decode(payload).decode('utf-8'), self.TEXT)
+        startfile.assert_called_once_with('viber://')
+        self.assertIn('Ctrl+V', status)
+        self.assertIn('«Γονείς Β2»', status)
+
+    def test_windows_viber_missing_keeps_clipboard(self):
+        from unittest.mock import patch
+        import report_viber
+        with patch.object(report_viber.sys, 'platform', 'win32'), \
+                patch.object(report_viber.subprocess, 'run'), \
+                patch.object(report_viber.os, 'startfile', create=True, side_effect=OSError):
+            status = report_viber.open_in_viber(self.TEXT)
+        self.assertIn('Viber did not open', status)
+
+    def test_macos_uses_pbcopy_and_cmd_v(self):
+        from unittest.mock import patch
+        import report_viber
+        with patch.object(report_viber.sys, 'platform', 'darwin'), \
+                patch.object(report_viber.subprocess, 'run') as run:
+            status = report_viber.open_in_viber(self.TEXT)
+        self.assertEqual(run.call_args_list[0].args[0], ['pbcopy'])
+        self.assertEqual(run.call_args_list[0].kwargs['input'], self.TEXT.encode('utf-8'))
+        self.assertEqual(run.call_args_list[1].args[0], ['open', '-a', 'Viber'])
+        self.assertIn('Cmd+V', status)
+
+    def test_linux_is_refused_clearly(self):
+        from unittest.mock import patch
+        import report_viber
+        with patch.object(report_viber.sys, 'platform', 'linux'), \
+                patch.object(report_viber.subprocess, 'run') as run:
+            with self.assertRaisesRegex(RuntimeError, 'macOS and Windows'):
+                report_viber.open_in_viber(self.TEXT)
+            run.assert_not_called()
+
+
 if __name__ == '__main__':
     unittest.main()

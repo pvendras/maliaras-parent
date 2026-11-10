@@ -129,7 +129,8 @@ in chat, not a raw export. Rewrite it for Viber and pipe it on stdin:
 uv run --no-project "<project-root>/report_viber.py" < /path/in/scratchpad/viber.txt
 ```
 
-It copies the text to the clipboard and opens Viber; nothing is sent automatically
+It copies the text to the clipboard and opens Viber (macOS and Windows; the
+output names the paste shortcut, Cmd+V or Ctrl+V); nothing is sent automatically
 (the parent picks the chat, pastes and sends). If `MALIARAS_VIBER_CHAT` is set, the
 helper's output names that chat; remind the parent to paste there. Viber rules:
 - Leave out the child's name: title is «📋 *Αναφορά — <weekday> <date>*».

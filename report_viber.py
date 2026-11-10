@@ -3,8 +3,11 @@
 Deliberately leaves out the child's name, notes and source links: the message
 ends with the timetable. Nothing is sent; the parent pastes and sends it.
 """
+import base64
 from datetime import date
+import os
 import subprocess
+import sys
 
 from lessons import normalize
 from report_md import subject_emoji
@@ -69,20 +72,52 @@ def render_viber(report, days):
     return '\n'.join(lines).rstrip()
 
 
+def copy_to_clipboard(text):
+    if sys.platform == 'darwin':
+        subprocess.run(['pbcopy'], input=text.encode('utf-8'), check=True, timeout=10)
+    elif sys.platform == 'win32':
+        # Base64 in an environment variable keeps Greek and emojis intact; the
+        # Windows console code page would otherwise mangle them on stdin.
+        script = ('Set-Clipboard -Value ([Text.Encoding]::UTF8.GetString('
+                  '[Convert]::FromBase64String($env:MALIARAS_CLIPBOARD_B64)))')
+        subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', script],
+                       env={**os.environ, 'MALIARAS_CLIPBOARD_B64':
+                            base64.b64encode(text.encode('utf-8')).decode('ascii')},
+                       check=True, timeout=30)
+    else:
+        raise RuntimeError('Viber clipboard support is available on macOS and Windows only')
+
+
+def launch_viber():
+    """Best effort: the text is already on the clipboard even if Viber does not open."""
+    try:
+        if sys.platform == 'darwin':
+            subprocess.run(['open', '-a', 'Viber'], check=True, timeout=10)
+        else:
+            os.startfile('viber://')  # Windows: Viber Desktop registers this link
+        return True
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
 def open_in_viber(text):
-    """Copy to the macOS clipboard and bring Viber forward; the parent pastes and sends."""
-    subprocess.run(['pbcopy'], input=text.encode('utf-8'), check=True, timeout=10)
-    subprocess.run(['open', '-a', 'Viber'], check=True, timeout=10)
+    """Copy to the clipboard and bring Viber forward; the parent pastes and sends."""
+    copy_to_clipboard(text)
+    opened = launch_viber()
+    paste = 'Cmd+V' if sys.platform == 'darwin' else 'Ctrl+V'
+    chat = os.environ.get('MALIARAS_VIBER_CHAT', '').strip()
+    where = f' into «{chat}»' if chat else ''
+    return (('Copied to clipboard and opened Viber' if opened else
+             'Copied to clipboard; Viber did not open, open it manually')
+            + f'; paste{where} with {paste} and send manually.')
 
 
 if __name__ == '__main__':
-    # Text already written for the parent (e.g. the chat report) arrives on stdin.
-    import sys
-    message = sys.stdin.read().strip()
+    # Text already written for the parent (e.g. the chat report) arrives on stdin as UTF-8.
+    message = sys.stdin.buffer.read().decode('utf-8-sig').strip()
     if not message:
         raise SystemExit('No message on stdin')
-    open_in_viber(message)
-    import os
-    chat = os.environ.get('MALIARAS_VIBER_CHAT', '').strip()
-    print('Copied to clipboard and opened Viber; paste'
-          + (f' into «{chat}»' if chat else '') + ' and send manually.')
+    try:
+        print(open_in_viber(message))
+    except (RuntimeError, subprocess.SubprocessError, OSError) as error:
+        raise SystemExit(f'Could not copy to clipboard: {error}')

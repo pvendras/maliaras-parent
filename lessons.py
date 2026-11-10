@@ -160,8 +160,7 @@ def main():
                         'yearid': int(year['id']), 'studentid': user['studentid']}))
                     days = select_days(week, date.fromisoformat(output['date']))
                 output['viber_text'] = render_viber(output, days)
-                open_in_viber(output['viber_text'])
-                output['viber'] = 'Copied to clipboard and opened Viber; paste and send manually.'
+                output['viber'] = open_in_viber(output['viber_text'])
             print(json.dumps(output, ensure_ascii=False, indent=2))
             return 0
         if args.all:
