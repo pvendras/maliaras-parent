@@ -38,16 +38,18 @@ def note_lines(value):
 
 
 def font_paths():
+    windows_fonts = Path(os.environ.get('WINDIR', r'C:\Windows')) / 'Fonts'
     pairs = [
         ('/System/Library/Fonts/Supplemental/Arial.ttf',
          '/System/Library/Fonts/Supplemental/Arial Bold.ttf'),
         ('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
          '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'),
+        (str(windows_fonts / 'arial.ttf'), str(windows_fonts / 'arialbd.ttf')),
     ]
     for regular, bold in pairs:
         if Path(regular).is_file() and Path(bold).is_file():
             return regular, bold
-    raise RuntimeError('PDF requires Greek-capable Arial or DejaVu Sans fonts')
+    raise RuntimeError('PDF requires Greek-capable Arial (macOS/Windows) or DejaVu Sans (Linux) fonts')
 
 
 def write_report_pdf(report, destination):

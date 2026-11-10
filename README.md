@@ -23,7 +23,7 @@
 ## Τι χρειάζεστε
 
 - Mac (ή Linux). Η αποστολή στο Viber λειτουργεί μόνο σε Mac. Στα Windows η υποστήριξη
-  δεν είναι ακόμα πλήρης (ώρα Αθήνας, PDF, Viber) και δεν έχει δοκιμαστεί.
+  δεν είναι ακόμα πλήρης (ώρα Αθήνας, Viber) και δεν έχει δοκιμαστεί.
 - Τους κωδικούς του **erp.maliaras.gr** για κάθε παιδί.
 - [**uv**](https://docs.astral.sh/uv/) για να τρέχουν τα scripts:
   ```sh
@@ -206,7 +206,7 @@ cd mcp_server && uv run --group dev pytest -q
 ```
 
 Τα tests χρησιμοποιούν φανταστικά παιδιά (`anna`, `nikos`) και δεν συνδέονται στο ERP.
-Για τα ελληνικά στο PDF χρειάζεται Arial (macOS) ή DejaVu Sans (Linux).
+Για τα ελληνικά στο PDF χρειάζεται Arial (macOS, Windows) ή DejaVu Sans (Linux).
 
 ## Άδεια
 

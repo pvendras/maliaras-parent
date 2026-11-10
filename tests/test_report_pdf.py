@@ -37,3 +37,22 @@ class PdfTests(unittest.TestCase):
             report['date'] = None
             write_report_pdf(report, Path(directory) / 'empty.pdf')
             self.assertIn('Δεν βρέθηκαν', PdfReader(Path(directory) / 'empty.pdf').pages[0].extract_text())
+
+
+class FontPathTests(unittest.TestCase):
+    def test_windows_arial_is_found(self):
+        import tempfile as tf
+        from unittest.mock import patch
+        import report_pdf
+        with tf.TemporaryDirectory() as windir:
+            fonts = Path(windir) / 'Fonts'
+            fonts.mkdir()
+            for name in ('arial.ttf', 'arialbd.ttf'):
+                (fonts / name).write_bytes(b'')
+            real_is_file = Path.is_file
+            # Hide macOS/Linux fonts so only the Windows pair can match.
+            only_windows = lambda self: str(self).startswith(windir) and real_is_file(self)
+            with patch.dict('os.environ', {'WINDIR': windir}), \
+                    patch.object(report_pdf.Path, 'is_file', only_windows):
+                self.assertEqual(report_pdf.font_paths(),
+                                 (str(fonts / 'arial.ttf'), str(fonts / 'arialbd.ttf')))
