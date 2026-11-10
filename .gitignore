@@ -7,7 +7,11 @@ data/
 
 # Private school exports and local machine/agent settings
 reports/
-.claude/
+# Local Claude Code settings stay private; only the skill link is shared.
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/maliaras-parent
 .pi/settings.json
 .DS_Store
 .venv/

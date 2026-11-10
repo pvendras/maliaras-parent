@@ -74,14 +74,10 @@ uv run --no-project lessons.py --student anna --report
 Αν δείτε JSON με μαθήματα, η σύνδεση πέτυχε. Αν δείτε σφάλμα σύνδεσης, ελέγξτε
 τους κωδικούς στο `.env`.
 
-**4. Συνδέστε το skill στο Claude Code**
+**4. Ανοίξτε το Claude Code**
 
-```sh
-mkdir -p .claude/skills
-ln -s ../../.agents/skills/maliaras-parent .claude/skills/maliaras-parent
-```
-
-Ανοίξτε το Claude Code **μέσα στον φάκελο** `maliaras-parent` και γράψτε:
+Το skill είναι ήδη συνδεδεμένο (`.claude/skills/maliaras-parent`). Ανοίξτε το
+Claude Code **μέσα στον φάκελο** `maliaras-parent` και γράψτε:
 
 ```text
 /maliaras-parent αναφορά Άννας
