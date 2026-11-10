@@ -22,7 +22,8 @@
 
 ## Τι χρειάζεστε
 
-- Mac (ή Linux). Η αποστολή στο Viber λειτουργεί μόνο σε Mac.
+- Mac (ή Linux). Η αποστολή στο Viber λειτουργεί μόνο σε Mac. Στα Windows η υποστήριξη
+  δεν είναι ακόμα πλήρης (ώρα Αθήνας, PDF, Viber) και δεν έχει δοκιμαστεί.
 - Τους κωδικούς του **erp.maliaras.gr** για κάθε παιδί.
 - [**uv**](https://docs.astral.sh/uv/) για να τρέχουν τα scripts:
   ```sh
@@ -86,6 +87,19 @@ Claude Code **μέσα στον φάκελο** `maliaras-parent` και γράψ
 ```text
 /maliaras-parent αναφορά Άννας
 ```
+
+**Windows:** στα Windows το git συνήθως κατεβάζει τον σύνδεσμο του skill ως απλό
+αρχείο κειμένου, οπότε το Claude Code δεν βρίσκει το skill. Αντικαταστήστε τον με
+αντίγραφο του φακέλου. Στο **PowerShell**, μέσα στον φάκελο `maliaras-parent`:
+
+```powershell
+Remove-Item .claude\skills\maliaras-parent
+Copy-Item -Recurse .agents\skills\maliaras-parent .claude\skills\maliaras-parent
+```
+
+Μετά από κάθε ενημέρωση (`git pull`) επαναλάβετε την αντιγραφή, για να πάρετε και
+τις νέες οδηγίες του skill. Αν το `Remove-Item` αποτύχει γιατί το git διατήρησε
+τελικά τον σύνδεσμο, δεν χρειάζεται τίποτα: το skill είναι ήδη συνδεδεμένο.
 
 Για το **Pi**: ανοίξτε το Pi στον φάκελο (το skill είναι στο `.agents/skills/`) ή
 φορτώστε το ρητά με `pi --skill <φάκελος>/.agents/skills/maliaras-parent/SKILL.md`.
