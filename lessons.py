@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["reportlab>=4.4,<5"]
+# dependencies = ["reportlab>=4.4,<5", "tzdata; sys_platform == 'win32'"]
 # ///
 """Fetch selected lesson notes for a parent question; run with uv run --no-project."""
 import argparse

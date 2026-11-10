@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["tzdata; sys_platform == 'win32'"]  # Windows Python lacks the time zone database
+# ///
 """Read lesson announcements only; no attachments, read receipts or account changes."""
 import argparse
 from datetime import datetime

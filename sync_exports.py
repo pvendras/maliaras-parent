@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["reportlab>=4.4,<5"]
+# dependencies = ["reportlab>=4.4,<5", "tzdata; sys_platform == 'win32'"]
 # ///
 """Export new/changed recorded days for both children; never overwrite older exports."""
 from datetime import datetime

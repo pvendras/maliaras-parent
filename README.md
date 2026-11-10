@@ -23,7 +23,7 @@
 ## Τι χρειάζεστε
 
 - Mac (ή Linux). Η αποστολή στο Viber λειτουργεί μόνο σε Mac. Στα Windows η υποστήριξη
-  δεν είναι ακόμα πλήρης (ώρα Αθήνας, Viber) και δεν έχει δοκιμαστεί.
+  δεν είναι ακόμα πλήρης (λείπει το Viber) και δεν έχει δοκιμαστεί.
 - Τους κωδικούς του **erp.maliaras.gr** για κάθε παιδί.
 - [**uv**](https://docs.astral.sh/uv/) για να τρέχουν τα scripts:
   ```sh
@@ -201,7 +201,7 @@ redirects, cookies και απαντήσεις μένουν μόνο στη μν
 ### Tests
 
 ```sh
-uv run --no-project --with reportlab --with pypdf python -m unittest discover -s tests -t .
+uv run --no-project --with reportlab --with pypdf --with tzdata python -m unittest discover -s tests -t .
 cd mcp_server && uv run --group dev pytest -q
 ```
 

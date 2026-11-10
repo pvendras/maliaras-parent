@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["tzdata; sys_platform == 'win32'"]  # Windows Python lacks the time zone database
+# ///
 """Read the student's weekly timetable; subjects and periods only, no teachers or rooms."""
 import argparse
 from datetime import datetime, timedelta
